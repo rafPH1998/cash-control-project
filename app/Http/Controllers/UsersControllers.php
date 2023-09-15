@@ -25,4 +25,12 @@ class UsersControllers extends Controller
         User::create($data);
         return response()->json($data, 201);
     }
+
+    public function destroy(string $id)
+    {
+        $user = User::findOrFail($id);
+        $user->delete();
+        return response()->json([], 204);
+    }
+
 }

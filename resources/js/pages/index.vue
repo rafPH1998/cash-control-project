@@ -1,10 +1,19 @@
 <template>
     <div class="flex flex-col">
+
+        <modal-delete
+            :modal="modal"
+            @closeModal="modal.show = false"
+            @delete="deletePlayer(modal.userId)"
+        />
+
         <div class="overflow-x-auto sm:mx-0.5 lg:mx-0.5">
             <div class="py-2 inline-block min-w-full sm:px-6 lg:px-8">
-                <div class="overflow-hidden">
+                <div class="overflow-x-auto">
                     <div class="container mx-auto mt-10">
                         <h1 class="text-3xl uppercase 2xl flex justify-center">Listagem de jogadores do horário</h1>
+
+                        <alert-success v-show="msgSuccess">Jogador deletado com sucesso!</alert-success>
 
                         <div v-if="processing" class="flex justify-center items-center mt-10 text-xs">
                             <img src="images/spinner.svg" alt="loader" class="w-14 h-14">
@@ -40,55 +49,71 @@
                                     </select>
                                 </div>
                             </div>
-                            <table
-                                class="min-w-full shadow-lg mt-2">
-                                <thead class="bg-white border-b">
-                                    <tr>
-                                        <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">#</th>
-                                        <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">NOME</th>
-                                        <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">VALOR</th>
-                                        <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">TIPO</th>
-                                        <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">STATUS</th>
-                                        <th scope="col" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">AÇÕES</th>
-                                    </tr>
-                                </thead>
-                                <tbody v-for="user in users" :key="user.id">
-                                    <tr class="bg-white transition duration-300 ease-in-out hover:bg-gray-100 rounded-md">
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ user.id }}</td>
-                                        <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                                            {{user.name}}
-                                        </td>
-                                        <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                                            40,00
-                                        </td>
-                                        <td class="text-xs text-green-600 font-light px-6 py-4 whitespace-nowrap">
-                                            Mensalista
-                                        </td>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full shadow-lg mt-2">
+                                    <thead class="bg-white border-b">
+                                        <tr>
+                                            <th scope="col" class="text-sm font-medium text-gray-900 px-3 py-2 md:px-6 md:py-4 text-left">#</th>
+                                            <th scope="col" class="text-sm font-medium text-gray-900 px-3 py-2 md:px-6 md:py-4 text-left">NOME</th>
+                                            <th scope="col" class="text-sm font-medium text-gray-900 px-3 py-2 md:px-6 md:py-4 text-left">VALOR</th>
+                                            <th scope="col" class="text-sm font-medium text-gray-900 px-3 py-2 md:px-6 md:py-4 text-left">TIPO</th>
+                                            <th scope="col" class="text-sm font-medium text-gray-900 px-3 py-2 md:px-6 md:py-4 text-left">STATUS</th>
+                                            <th scope="col" class="text-sm font-medium text-gray-900 px-3 py-2 md:px-6 md:py-4 text-left">AÇÕES</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody v-for="user in users" :key="user.id">
+                                        <tr class="bg-white transition duration-300 ease-in-out hover:bg-gray-100 rounded-md">
+                                            <td class="px-3 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ user.id }}</td>
+                                            <td class="text-sm text-gray-900 font-light px-3 py-2 md:px-6 md:py-4 whitespace-nowrap">
+                                                {{user.name}}
+                                            </td>
+                                            <td class="text-sm text-gray-900 font-light px-3 py-2 md:px-6 md:py-4 whitespace-nowrap">
+                                                R$ {{ user.price }},00
+                                            </td>
+                                            <td
+                                                :class="{'text-green-600': user.type === 'mensal', 'text-yellow-600': user.type === 'avulso'}"
+                                                class="text-xs font-light px-3 py-2 md:px-6 md:py-4 whitespace-nowrap"
+                                                >
+                                                {{ user.type === 'mensal' ? 'Mensalista' : 'Avulso' }}
+                                            </td>
 
-                                        <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                                           <div class="flex">
-                                                <div class="inline-flex items-center px-3 py-1 rounded-full gap-x-2 text-emerald-500 border border-emerald-500">
-                                                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                                    </svg>
+                                            <td class="text-sm text-gray-900 font-light px-3 py-2 md:px-6 md:py-4 whitespace-nowrap">
+                                                <div class="flex">
+                                                    <div
+                                                        :class="[
+                                                            user.status === 'pendente' ? 'stroke-yellow-500 text-yellow-500 border-yellow-500' : '',
+                                                            user.status === 'pago' ? 'stroke-emerald-500 text-emerald-500 border-emerald-500' : '',
+                                                        ]"
+                                                        class="inline-flex items-center px-2 py-1 rounded-full gap-x-2 border">
 
-                                                    <p class="text-xs font-normal">PAGO</p>
+                                                        <div v-if="user.status === 'pago'">
+                                                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                            </svg>
+                                                        </div>
+                                                        <div v-else-if="user.status === 'pendente'">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                                                            </svg>
+                                                        </div>
+                                                        <p class="text-xs font-normal">{{ user.status }}</p>
+                                                    </div>
                                                 </div>
-                                           </div>
-                                        </td>
-                                        <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                                            <div class="flex">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="stroke-blue-500 w-5 h-5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                                                </svg>
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="stroke-red-500 w-5 h-5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                                </svg>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                            </td>
+                                            <td class="text-sm text-gray-900 font-light px-3 py-2 md:px-6 md:py-4 whitespace-nowrap">
+                                                <div class="flex">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="stroke-blue-500 w-5 h-5">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                                    </svg>
+                                                    <svg @click.prevent="openModal(user.id)" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="stroke-red-500 w-5 h-5 cursor-pointer">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                                    </svg>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                             <button class="mt-4 text-white font-bold rounded-full text-xs px-2 py-1 bg-red-700 hover:bg-red-800 mr-2">
                                 <span class="flex items-center">Fechar caixa
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 ml-1">
@@ -113,12 +138,21 @@
 
 import axios from 'axios'
 import { ref, onMounted } from 'vue'
+import ModalDelete from '../components/modal-delete.vue'
+import alertSuccess from '../components/alert-success.vue'
 
 export default {
     name: "Index",
+    components: { ModalDelete, alertSuccess },
     setup(){
         const processing = ref(false)
         const users = ref('')
+        const msgSuccess = ref(false)
+
+        const modal = ref({
+            show: false,
+            userId: null,
+        });
 
         onMounted(() => {
             processing.value = true
@@ -134,7 +168,38 @@ export default {
                 })
         })
 
-        return { processing, users }
+        const openModal = (userId) => {
+            modal.value.show = true;
+            modal.value.userId = userId;
+        };
+
+        const deletePlayer = (id) => {
+            axios.delete(`http://localhost:8989/api/users/${id}`)
+                .then((response) => {
+                    if (response.status === 204) {
+
+                        msgSuccess.value = true;
+                        setTimeout(() => {
+                            msgSuccess.value = false;
+                        }, 2000);
+
+                        const index = users.value.findIndex(user => user.id === id);
+                        if (index !== -1) {
+                            users.value.splice(index, 1);
+                        }
+                    }
+                })
+                .catch((error) => {
+                    console.log('caiu no erro');
+                })
+                .finally(() => {
+                    modal.value.show = false;
+                });
+        }
+
+        return { processing, users, modal, openModal, deletePlayer, msgSuccess }
     }
 }
 </script>
+
+
