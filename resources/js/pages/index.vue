@@ -29,7 +29,7 @@
                                     </svg>
                                 </router-link>
 
-                                <p class="font-light">Mês atual: Setembro</p>
+                                <p class="font-light">Mês atual: {{ currentMonthName }}</p>
 
                                 <div class="p-3 px-5">
                                     <select class="bg-white rounded p-2 text-xs shadow font-light">
@@ -62,7 +62,8 @@
                                         </tr>
                                     </thead>
                                     <tbody v-for="user in users" :key="user.id">
-                                        <tr class="bg-white transition duration-300 ease-in-out hover:bg-gray-100 rounded-md">
+                                        <tr
+                                            class="transition duration-300 ease-in-out rounded-md bg-white hover:bg-gray-100">
                                             <td class="px-3 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ user.id }}</td>
                                             <td class="text-sm text-gray-900 font-light px-3 py-2 md:px-6 md:py-4 whitespace-nowrap">
                                                 {{user.name}}
@@ -92,8 +93,11 @@
                                                             </svg>
                                                         </div>
                                                         <div v-else-if="user.status === 'pendente'">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                fill="none" viewBox="0 0 24 24"
+                                                                stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                                                <path stroke-linecap="round"
+                                                                stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                                                             </svg>
                                                         </div>
                                                         <p class="text-xs font-normal">{{ user.status }}</p>
@@ -101,11 +105,19 @@
                                                 </div>
                                             </td>
                                             <td class="text-sm text-gray-900 font-light px-3 py-2 md:px-6 md:py-4 whitespace-nowrap">
-                                                <div class="flex">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="stroke-blue-500 w-5 h-5">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                                                    </svg>
-                                                    <svg @click.prevent="openModal(user.id)" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="stroke-red-500 w-5 h-5 cursor-pointer">
+                                                <div class="flex items-center">
+                                                    <select
+                                                        v-model="user.status"
+                                                        @change="updatedStatus(user.status, user.id)"
+                                                        class="bg-white rounded p-2 text-xs shadow font-light">
+                                                        <option value="pago" class="text-black font-light" :selected="user.status === 'pago'">Pago</option>
+                                                        <option value="pendente" class="text-black font-light" :selected="user.status === 'pendente'">Não pago</option>
+                                                    </select>
+
+                                                    <svg @click.prevent="openModal(user.id)" xmlns="http://www.w3.org/2000/svg"
+                                                        fill="none" viewBox="0 0 24 24"
+                                                        stroke-width="1.5" stroke="currentColor"
+                                                        class="stroke-red-500 w-5 h-5 cursor-pointer ml-2">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                                                     </svg>
                                                 </div>
@@ -114,16 +126,32 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <button class="mt-4 text-white font-bold rounded-full text-xs px-2 py-1 bg-red-700 hover:bg-red-800 mr-2">
-                                <span class="flex items-center">Fechar caixa
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 ml-1">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </span>
-                            </button>
-                            <div class="border w-72 p-2 rounded bg-[#86efac] mt-4 text-xs">
-                                <div class="flex">
-                                    <p class="text-sm font-light">Sobra do mês de setembro:<b class="ml-2"> R$ 400,00</b></p>
+                            <div class="flex pb-20">
+                                <div
+                                    class="border w-78 p-2 rounded bg-[#86efac] mt-4 text-xs">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex flex-col">
+                                            <div class="flex items-center">
+                                                <p class="text-sm font-light">Total pagos:</p>
+                                                <b class="ml-auto">R$ {{totalPrice}},00</b>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <p class="text-sm font-light">Sobra do mês de setembro:</p>
+                                                <b class="mt-1 ml-2">R$ {{surplus}},00</b>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-row-reverse">
+                                        <button
+                                            @click="closeBox()"
+                                            class="mt-8 text-white font-bold rounded-full text-xs px-2 bg-red-700 hover:bg-red-800 ">
+                                            <span class="flex items-center">Fechar caixa
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 ml-1">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -135,19 +163,19 @@
 </template>
 
 <script>
-
 import axios from 'axios'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import ModalDelete from '../components/modal-delete.vue'
 import alertSuccess from '../components/alert-success.vue'
 
 export default {
     name: "Index",
     components: { ModalDelete, alertSuccess },
-    setup(){
+    setup() {
         const processing = ref(false)
         const users = ref('')
         const msgSuccess = ref(false)
+        const showItem = ref(false)
 
         const modal = ref({
             show: false,
@@ -159,6 +187,7 @@ export default {
             axios.get('http://localhost:8989/api/users')
                 .then((response) => {
                     users.value = response.data.data
+                    currentMonthName.value = response.data.currentMonthName
                 })
                 .catch((error) => {
                     console.log(error)
@@ -174,7 +203,7 @@ export default {
         };
 
         const deletePlayer = (id) => {
-            axios.delete(`http://localhost:8989/api/users/${id}`)
+            axios.delete(`http://localhost:8989/api/user/${id}`)
                 .then((response) => {
                     if (response.status === 204) {
 
@@ -197,7 +226,81 @@ export default {
                 });
         }
 
-        return { processing, users, modal, openModal, deletePlayer, msgSuccess }
+        const closeBox = () => {
+            alert("OPA")
+        }
+
+        const updatedStatus = (status, id) => {
+
+            axios.put(`http://localhost:8989/api/user/${id}`, {
+                    status: status,
+                    month: currentMonthName.value,
+                })
+                .then((response) => {
+                   console.log(response)
+                })
+                .catch((error) => {
+                    console.log(error);
+                })
+                .finally(() => {
+                    processing.value = false;
+                });
+        }
+
+        const totalPrice = computed(() => {
+
+            if (users.value && users.value.length > 0) {
+                    const paidUsers = users.value.filter(user => user.status === "pago");
+                    const total = paidUsers.reduce((accumulator, user) => {
+                    return accumulator + user.price;
+                }, 0);
+
+                return total;
+            }
+            return 0;
+        });
+
+        const surplus = computed(() => {
+            const calculatedSurplus = totalPrice.value - 710;
+            return calculatedSurplus < 0 ? 0 : calculatedSurplus;
+        });
+
+        const currentMonthName = computed(() => {
+            const months = [
+                "Janeiro",
+                "Fevereiro",
+                "Março",
+                "Abril",
+                "Maio",
+                "Junho",
+                "Julho",
+                "Agosto",
+                "Setembro",
+                "Outubro",
+                "Novembro",
+                "Dezembro",
+            ];
+
+            const currentDate = new Date();
+            const currentMonth = months[currentDate.getMonth()];
+
+            return currentMonth;
+        });
+
+        return {
+            processing,
+            users,
+            modal,
+            openModal,
+            deletePlayer,
+            closeBox,
+            showItem,
+            msgSuccess,
+            totalPrice,
+            surplus,
+            currentMonthName,
+            updatedStatus
+        }
     }
 }
 </script>
