@@ -14,10 +14,9 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('status')->unique();
+            $table->string('status')->default('pendente');
             $table->integer('price');
-            $table->float('total');
-            $table->string('closing_date');
+            $table->string('type');
             $table->timestamps();
         });
     }

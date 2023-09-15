@@ -20,9 +20,8 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'status' => fake()->word(),
+            'type' => 'mensal',
             'price' => 40,
-            'total' => fake()->randomFloat(2, 100, 1000),
-            'closing_date' => fake()->date,
         ];
     }
 
