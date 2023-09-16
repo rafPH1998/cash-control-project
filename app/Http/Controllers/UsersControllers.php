@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Payment;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -38,21 +39,25 @@ class UsersControllers extends Controller
 
     public function update(string $id, Request $request)
     {
-        $user = User::findOrFail($id);
+        $user = User::with('payment')->findOrFail($id);
 
         $data = [
-            'status' => $request->status,
+            'user_id' => $id,
+            'month_payment' => $request->status === 'pendente' ? '' : $request->month,
         ];
 
-        if ($request->status === 'pendente') {
-            $data['month_payment'] = '';
+        $existingPayment = $user->payment
+                        ->firstWhere('month_payment', $request->month);
+
+        if ($existingPayment) {
+            $existingPayment->delete();
+            $user->update(['status' => 'pendente']);
         } else {
-            $data['month_payment'] = $request->month;
+            Payment::create($data);
+            $user->update(['status' => 'pago']);
         }
 
-        $user->update($data);
-
-        return response()->json(true, 200);
+        return response()->json(true, 201);
     }
 
 

@@ -232,7 +232,7 @@ export default {
 
         const updatedStatus = (status, id) => {
 
-            axios.put(`http://localhost:8989/api/user/${id}`, {
+            axios.post(`http://localhost:8989/api/user/${id}`, {
                     status: status,
                     month: currentMonthName.value,
                 })
