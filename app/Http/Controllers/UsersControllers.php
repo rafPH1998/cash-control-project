@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Box;
 use App\Models\Payment;
 use App\Models\User;
 use Carbon\Carbon;
@@ -11,10 +12,24 @@ use function PHPSTORM_META\type;
 
 class UsersControllers extends Controller
 {
-    public function index()
+    public function index(Request $req)
     {
+        $months = $this->getMonthsArray();
+
+        $now = Carbon::now();
+        $currentMonth = $now->month;
+        $monthName = $months[$currentMonth];
+
+        $usersInCurrentMonth = User::when(empty($req->mes), function ($query) use ($monthName) {
+            return $query->where('month_created', '=', $monthName);
+        })
+        ->when(!empty($req->mes), function ($query) use ($req) {
+            return $query->where('month_created', '=', $req->mes);
+        })->get();
+
         return response()->json([
-            'data' => User::all(),
+            'data' => $usersInCurrentMonth,
+            'boxClosed' => Box::all(),
         ]);
     }
 
@@ -25,6 +40,8 @@ class UsersControllers extends Controller
             'price' => 'required',
             'type' => 'required'
         ]);
+
+        $data['month_created'] = $request->month;
 
         User::create($data);
         return response()->json($data, 201);
@@ -58,6 +75,26 @@ class UsersControllers extends Controller
         }
 
         return response()->json(true, 201);
+    }
+
+    private function getMonthsArray()
+    {
+        $months = [
+            1 => 'Janeiro',
+            2 => 'Fevereiro',
+            3 => 'Março',
+            4 => 'Abril',
+            5 => 'Maio',
+            6 => 'Junho',
+            7 => 'Julho',
+            8 => 'Agosto',
+            9 => 'Setembro',
+            10 => 'Outubro',
+            11 => 'Novembro',
+            12 => 'Dezembro'
+        ];
+
+        return $months;
     }
 
 

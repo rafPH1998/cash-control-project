@@ -5,6 +5,8 @@
             :modal="modal"
             @closeModal="modal.show = false"
             @delete="deletePlayer(modal.userId)"
+            @closeBox="closeBoxMonth()"
+            :text="text"
         />
 
         <div class="overflow-x-auto sm:mx-0.5 lg:mx-0.5">
@@ -17,7 +19,7 @@
 
                         <div v-if="processing" class="flex justify-center items-center mt-10 text-xs">
                             <img src="images/spinner.svg" alt="loader" class="w-14 h-14">
-                            <p class="ml-1">Carregando jogadores...</p>
+                            <p class="ml-1">Carregando dados...</p>
                         </div>
                         <div class="mt-20" v-else>
                             <div class="flex justify-between">
@@ -29,27 +31,28 @@
                                     </svg>
                                 </router-link>
 
-                                <p class="font-light">Mês atual: {{ currentMonthName }}</p>
-
                                 <div class="p-3 px-5">
-                                    <select class="bg-white rounded p-2 text-xs shadow font-light">
-                                        <option class="text-black font-light" selected>Buscar dados por mês</option>
-                                        <option class="text-black font-light">Janeiro</option>
-                                        <option class="text-black font-light">Fevereiro</option>
-                                        <option class="text-black font-light">Março</option>
-                                        <option class="text-black font-light">Abril</option>
-                                        <option class="text-black font-light">Maio</option>
-                                        <option class="text-black font-light">Junho</option>
-                                        <option class="text-black font-light">Julho</option>
-                                        <option class="text-black font-light">Agosto</option>
-                                        <option class="text-black font-light">Setembro</option>
-                                        <option class="text-black font-light">Outubro</option>
-                                        <option class="text-black font-light">Novembro</option>
-                                        <option class="text-black font-light">Dezembro</option>
-                                    </select>
+                                    <p class="text-black font-light text-xs">Buscar dados por mês</p>
+                                    <form @change="searchMonth()" action="#" method="GET">
+                                        <select class="bg-white rounded p-2 text-xs shadow font-light w-52" v-model="search">
+                                            <option value="Janeiro" class="text-black font-light">Janeiro</option>
+                                            <option value="Fevereiro" class="text-black font-light">Fevereiro</option>
+                                            <option value="Março" class="text-black font-light">Março</option>
+                                            <option value="Abril" class="text-black font-light">Abril</option>
+                                            <option value="Maio" class="text-black font-light">Maio</option>
+                                            <option value="Junho" class="text-black font-light">Junho</option>
+                                            <option value="Julho" class="text-black font-light">Julho</option>
+                                            <option value="Agosto" class="text-black font-light">Agosto</option>
+                                            <option value="Setembro" class="text-black font-light">Setembro</option>
+                                            <option value="Outubro" class="text-black font-light">Outubro</option>
+                                            <option value="Novembro" class="text-black font-light">Novembro</option>
+                                            <option value="Dezembro" class="text-black font-light">Dezembro</option>
+                                        </select>
+                                    </form>
                                 </div>
                             </div>
                             <div class="overflow-x-auto">
+                                <p class="font-light flex justify-center">Mês atual: {{ currentMonthName }}</p>
                                 <table class="min-w-full shadow-lg mt-2">
                                     <thead class="bg-white border-b">
                                         <tr>
@@ -108,6 +111,7 @@
                                                 <div class="flex items-center">
                                                     <select
                                                         v-model="user.status"
+                                                        :disabled="(statusBox || box) && user.status !== 'pendente'"
                                                         @change="updatedStatus(user.status, user.id)"
                                                         class="bg-white rounded p-2 text-xs shadow font-light">
                                                         <option value="pago" class="text-black font-light" :selected="user.status === 'pago'">Pago</option>
@@ -128,30 +132,38 @@
                             </div>
                             <div class="flex pb-20">
                                 <div
-                                    class="border w-78 p-2 rounded bg-[#86efac] mt-4 text-xs">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex flex-col">
-                                            <div class="flex items-center">
-                                                <p class="text-sm font-light">Total pagos:</p>
-                                                <b class="ml-auto">R$ {{totalPrice}},00</b>
-                                            </div>
-                                            <div class="flex items-center">
-                                                <p class="text-sm font-light">Sobra do mês de setembro:</p>
-                                                <b class="mt-1 ml-2">R$ {{surplus}},00</b>
-                                            </div>
+                                    class="border w-full p-2 rounded bg-blue-200 mt-4 text-xs">
+                                    <div class="flex flex-col">
+                                        <div class="flex items-center justify-between">
+                                            <p class="text-sm font-light">Total pagantes:</p>
+                                            <b class="text-right">R$ {{totalPrice}},00</b>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <p class="text-sm font-light">Valor da quadra:</p>
+                                            <b class="text-right">R$ 710,00</b>
+                                        </div>
+                                        <div class="flex items-center justify-between" v-show="statusBox || box">
+                                            <p class="text-sm font-light">Sobra do mês de setembro:</p>
+                                            <b class="mt-1 text-right">R$ {{surplus}},00</b>
                                         </div>
                                     </div>
+
                                     <div class="flex flex-row-reverse">
                                         <button
+                                            :disabled="statusBox || box"
                                             @click="closeBox()"
-                                            class="mt-8 text-white font-bold rounded-full text-xs px-2 bg-red-700 hover:bg-red-800 ">
-                                            <span class="flex items-center">Fechar caixa
+                                            class="mt-8 text-white font-bold rounded-full text-xs px-2"
+                                            :class="{ 'bg-green-500 hover:bg-green-600': !statusBox && !box, 'bg-gray-400 hover:bg-gray-500': statusBox || box }">
+                                            <span class="flex items-center">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 ml-1">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
+                                                <p v-if="statusBox || box" class="ml-1">Caixa Fechado</p>
+                                                <p v-else class="ml-1">Fechar Caixa</p>
                                             </span>
                                         </button>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
@@ -174,6 +186,10 @@ export default {
     setup() {
         const processing = ref(false)
         const users = ref('')
+        const text = ref('')
+        const boxClosed = ref('');
+        const statusBox = ref('');
+        const search = ref('');
         const msgSuccess = ref(false)
         const showItem = ref(false)
 
@@ -183,10 +199,13 @@ export default {
         });
 
         onMounted(() => {
+            search.value = currentMonthName.value
+
             processing.value = true
             axios.get('http://localhost:8989/api/users')
                 .then((response) => {
                     users.value = response.data.data
+                    boxClosed.value = response.data.boxClosed
                     currentMonthName.value = response.data.currentMonthName
                 })
                 .catch((error) => {
@@ -200,7 +219,24 @@ export default {
         const openModal = (userId) => {
             modal.value.show = true;
             modal.value.userId = userId;
+            text.value = 'delete'
         };
+
+        const searchMonth = () => {
+            processing.value = true
+            axios.get(`http://localhost:8989/api/users?mes=${search.value}`)
+                .then((response) => {
+                    users.value = response.data.data
+                    boxClosed.value = response.data.boxClosed
+                    currentMonthName.value = response.data.currentMonthName
+                })
+                .catch((error) => {
+                    console.log(error)
+                })
+                .finally(() =>  {
+                    processing.value = false
+                })
+        }
 
         const deletePlayer = (id) => {
             axios.delete(`http://localhost:8989/api/user/${id}`)
@@ -227,7 +263,26 @@ export default {
         }
 
         const closeBox = () => {
-            alert("OPA")
+            modal.value.show = true;
+            text.value = 'box'
+        }
+
+        const closeBoxMonth = () => {
+            axios.post('http://localhost:8989/api/payment/', {
+                total: totalPrice.value,
+                month: currentMonthName.value,
+                users: users.value,
+            })
+            .then((response) => {
+                statusBox.value = response.data.data.closed
+                console.log(statusBox.value)
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+            .finally(() => {
+                modal.value.show = false;
+            });
         }
 
         const updatedStatus = (status, id) => {
@@ -246,6 +301,21 @@ export default {
                     processing.value = false;
                 });
         }
+
+        const box = computed(() => {
+            const res = boxClosed.value;
+
+            let hasMatchingItem = false;
+
+            for (let i = 0; i < res.length; i++) {
+                const item = res[i];
+                if (item.month === currentMonthName.value && item.closed === 1) {
+                    hasMatchingItem = true; // Define como true se uma correspondência for encontrada
+                }
+            }
+
+            return hasMatchingItem;
+        });
 
         const totalPrice = computed(() => {
 
@@ -293,13 +363,19 @@ export default {
             modal,
             openModal,
             deletePlayer,
+            closeBoxMonth,
             closeBox,
+            updatedStatus,
+            searchMonth,
             showItem,
             msgSuccess,
             totalPrice,
             surplus,
             currentMonthName,
-            updatedStatus
+            text,
+            search,
+            box,
+            statusBox
         }
     }
 }

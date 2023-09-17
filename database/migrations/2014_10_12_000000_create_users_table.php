@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('status')->default('pendente');
             $table->integer('price');
+            $table->string('month_created');
             $table->string('type');
             $table->timestamps();
             $table->timestamp('deleted_at')->nullable();

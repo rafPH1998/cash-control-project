@@ -10,7 +10,7 @@
                 class="p-14 bg-white max-w-sm mx-auto rounded-xl shadow-xl overflow-hidden space-y-10 mt-10 relative">
                 <div class="mb-4">
                     <label for="name" class="block text-sm text-gray-600 font-light">Nome</label>
-                    <input v-model="form.name" type="text" id="name" name="name" class="w-full px-4 py-2 font-light rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 shadow">
+                    <input v-model="form.name" type="text" id="name" name="name" class="w-full px-4 py-2 font-light rounded-lg focus:outline-none focus:ring-1 focus:ring-yellow-500 shadow" required>
                     <div v-show="errors.name">
                         <span class="fixed text-xs text-red-600"
                             v-for="error in errors.name"
@@ -73,6 +73,11 @@ export default {
     components: { AlertSuccess },
     setup(){
 
+        const months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+        const currentDate = new Date();
+        const currentMonth = months[currentDate.getMonth()];
+
         const errors = ref('')
         const processing = ref(false)
         const router = useRouter()
@@ -81,6 +86,7 @@ export default {
             name: '',
             price: '',
             type: '',
+            month: currentMonth
         })
 
         const storePlayers = () => {
@@ -98,7 +104,6 @@ export default {
                 })
                 .finally(() => processing.value = false)
         }
-
 
         return { storePlayers, form, errors, processing }
     }
