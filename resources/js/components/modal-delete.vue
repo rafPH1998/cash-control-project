@@ -18,10 +18,14 @@
                                 </svg>
                             </div>
                             <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                                <h3 class="text-black font-light leading-6" id="modal-title">Deletar membro</h3>
+                                <h3 class="text-black font-light leading-6" id="modal-title">
+                                    {{ text == 'delete' ? 'Deletar membro' : (text == 'box' ? 'Fechar o caixa' : '')}}
+                                </h3>
                                 <div class="mt-2">
                                     <p class="text-sm text-black font-light">
-                                        Tem certeza que deseja deletar esse membro ?
+                                        {{ text == 'delete' ? ' Tem certeza que deseja deletar esse membro ?'
+                                            : (text == 'box' ? 'Tem certeza que deseja fechar o caixa do mês?' : '')
+                                        }}
                                     </p>
                                 </div>
                             </div>
@@ -29,7 +33,7 @@
                     </div>
                     <hr class="border-slate-700">
                     <div class="bg-white px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                        <button @click="$emit('delete', modal.userId)" type="button" class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm text-white font-bold shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto">Sim</button>
+                        <button  @click="handleButtonClick()" type="button" class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm text-white font-bold shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto">Sim</button>
                         <button @click="$emit('closeModal')" type="button" class="mt-3 inline-flex w-full justify-center rounded-md text-black font-light px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">Cancelar</button>
                     </div>
                 </div>
@@ -41,9 +45,23 @@
 <script>
     export default {
         props: {
+            text: {
+                type: String,
+            },
             modal: {
                 type: Object,
             }
         },
+        setup(props, context) {
+            const handleButtonClick = () => {
+                if (props.text === 'delete') {
+                    context.emit('delete', props.modal.userId);
+                } else if (props.text === 'box') {
+                    context.emit('closeBox');
+                }
+            }
+
+            return { handleButtonClick }
+        }
     }
 </script>
