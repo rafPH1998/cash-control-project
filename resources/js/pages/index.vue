@@ -18,7 +18,6 @@
                         <alert-success v-show="msgSuccess">Jogador deletado com sucesso!</alert-success>
 
                         <div v-if="processing" class="flex justify-center items-center mt-10 text-xs">
-                            <img src="images/spinner.svg" alt="loader" class="w-14 h-14">
                             <p class="ml-1">Carregando dados...</p>
                         </div>
                         <div class="mt-20" v-else>
