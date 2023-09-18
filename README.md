@@ -2,7 +2,7 @@
 ### Passo a passo
 Clone Repositório
 ```sh
-git clone -b laravel-10-com-php-8.1 https://github.com/rafPH1998/cash-control-project
+git clone https://github.com/rafPH1998/cash-control-project
 ```
 ```sh
 cd cash-control-project
