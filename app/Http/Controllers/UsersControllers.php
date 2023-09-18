@@ -27,6 +27,7 @@ class UsersControllers extends Controller
             return $query->where('month_created', '=', $req->mes);
         })->get();
 
+
         return response()->json([
             'data' => $usersInCurrentMonth,
             'boxClosed' => Box::all(),

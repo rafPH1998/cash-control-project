@@ -18,6 +18,7 @@
                         <alert-success v-show="msgSuccess">Jogador deletado com sucesso!</alert-success>
 
                         <div v-if="processing" class="flex justify-center items-center mt-10 text-xs">
+                            <img src="images/spinner.svg" alt="loader" class="w-14 h-14">
                             <p class="ml-1">Carregando dados...</p>
                         </div>
                         <div class="mt-20" v-else>
@@ -152,7 +153,7 @@
                                             :disabled="statusBox || box && currentMonthName === search"
                                             @click="closeBox()"
                                             class="mt-8 text-white font-bold rounded-full text-xs px-2"
-                                            :class="{ 'bg-green-500 hover:bg-green-600': !statusBox && !box || currentMonthName !== search, 'bg-gray-400 hover:bg-gray-500': statusBox || box }">
+                                            :class="{ 'bg-green-500 hover:bg-green-600': !statusBox && !box || currentMonthName !== search, 'bg-gray-400 hover:bg-gray-500': statusBox || box}">
                                             <span class="flex items-center">
                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                     fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 ml-1">
